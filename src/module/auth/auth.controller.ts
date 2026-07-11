@@ -7,7 +7,7 @@ const signUpUser = async(req:Request,res:Response)=>{
     const userData = req.body;
     const result = await authService.signUpUserIntoDB(userData)
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "User registered successfully",
       data: result,
@@ -17,12 +17,11 @@ const signUpUser = async(req:Request,res:Response)=>{
 
     const err = error as {code?:String; message:String}
     if (err.code === '23505') {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "Email already exists!",
         errors: err.message,
       });
-      return;
     } else{
         res.status(500).json({
       success: false,
@@ -33,6 +32,32 @@ const signUpUser = async(req:Request,res:Response)=>{
    }
 }
 
+const loginUser = async(req:Request,res:Response)=>{
+ try {
+   const userData = req.body;
+   const result = await authService.loginUserFromDB(userData)
+
+   return res.status(200).json({
+    success:true,
+    message : "Login successful",
+    data:{
+      token :result.accessToken,
+      user:result.user
+    }
+   });
+   
+
+ } catch (error:unknown){
+  const err = error as {message:string};
+  return res.status(500).json({
+    success: false,
+      message: "Internal server error",
+      errors: err.message,
+  })
+ }
+}
+
 export const authController = {
-    signUpUser
+    signUpUser,
+    loginUser
 }
