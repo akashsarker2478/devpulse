@@ -3,7 +3,7 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 import config from "../config";
 import type { ROLES } from "../types";
 
-interface CustomRequest extends Request {
+export interface CustomRequest extends Request {
   user?: JwtPayload & { id: number; name: string; role: ROLES };
 }
 
