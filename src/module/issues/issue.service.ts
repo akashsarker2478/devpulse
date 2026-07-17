@@ -15,6 +15,49 @@ const createIssueIntoDB = async(payload:IIssue)=>{
         return result.rows[0]
 }
 
+const getAllIssueFromDB = async(query:{sort?:string,type?:string,status?:string})=>{
+    const {sort = "newest",type,status} = query;
+
+    let queryText = `SELECT * FROM issues`;
+ if(type){
+        queryText += ` WHERE type = '${type}'`;
+    }
+
+    if(status){
+       queryText += type ? ` AND status = '${status}'` : ` WHERE status = '${status}'`;
+    }
+
+    if(sort === 'oldest'){
+        queryText += ` ORDER BY created_at ASC;`
+    }else{
+          queryText += ` ORDER BY created_at DESC;`
+    }
+
+    const issueResult = await pool.query(queryText);
+    const issues = issueResult.rows;
+
+    const issuesWithReporters = [];
+
+    for(const issue of issues){
+        const reporterResult = await pool.query(`
+            SELECT name,role FROM users WHERE id = $1
+            `,[issue.reporter_id]);
+
+            const reporter = reporterResult.rows[0];
+
+            const issueWithReporterData = {
+                ...issue,reporter: reporter? {name:reporter.name,role:reporter.role}: null
+            } 
+            issuesWithReporters.push(issueWithReporterData)
+    }
+    return issuesWithReporters;
+
+    
+
+    
+}
+
 export const issueService = {
-    createIssueIntoDB
+    createIssueIntoDB,
+    getAllIssueFromDB
 }
