@@ -50,6 +50,7 @@ const userAuth = (...roles:ROLES[]) => {
 
       next();
     } catch (error: unknown) {
+      console.log("JWT Verification Error:", error);
       res.status(401).json({
         success: false,
         message: "Unauthorized",
