@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { issueService } from "./issue.service";
 import type { CustomRequest } from "../../middleware/auth";
+import { unlink } from "fs";
 
 export const createIssue = async(req:CustomRequest,res:Response)=>{
     try {
@@ -34,5 +35,27 @@ export const createIssue = async(req:CustomRequest,res:Response)=>{
       errors: err.message,
     });
     }
+}
+
+export const getAllIssue = async(req : Request,res:Response)=>{
+
+    try {
+      const query = req.query;
+      const result = await issueService.getAllIssueFromDB(query)
+
+      res.status(200).json({
+            success: true,
+            message: "Issues fetched successfully",
+            data: result,
+      })
+    } catch (error :unknown) {
+      const err = error as {message:string};
+      res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            errors: err.message,
+        });
+    }
+
 }
 
